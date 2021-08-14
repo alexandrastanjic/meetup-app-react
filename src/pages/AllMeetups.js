@@ -1,32 +1,49 @@
+import { useState, useEffect } from 'react';
+
 import MeetupList from '../components/meetups/MeetupList';
 
-const dummyData = [
-  {
-    id: 'm1',
-    title: 'This is a first meetup',
-    image: 'https://image.freepik.com/free-photo/empty-floor-with-modern-skyline-buildings_1112-1066.jpg',
-    address: 'Meetupstreet 5, 1234 Meetup City',
-    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate assumenda nostrum numquam earum ut voluptatum minima magnam quas itaque! Id veritatis possimus magni autem eligendi sunt numquam earum? Nemo, alias?"
-  }, {
-    id: 'm2',
-    title: 'This is a second meetup',
-    image: 'https://image.freepik.com/free-photo/modern-business-building-with-glass-wall-from-empty-floor_1127-3090.jpg',
-    address: 'Meetupstreet 5, 1234 Meetup City',
-    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate assumenda nostrum numquam earum ut voluptatum minima magnam quas itaque! Id veritatis possimus magni autem eligendi sunt numquam earum? Nemo, alias?"
-  }, {
-    id: 'm3',
-    title: 'This is a third meetup',
-    image: 'https://image.freepik.com/free-photo/signboard-with-mock-up-space-your-commercial-information_273609-25943.jpg',
-    address: 'Meetupstreet 5, 1234 Meetup City',
-    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate assumenda nostrum numquam earum ut voluptatum minima magnam quas itaque! Id veritatis possimus magni autem eligendi sunt numquam earum? Nemo, alias?"
-  },
-];
-
 function AllMeetupsPage() {
-  return (<section>
-    <h1>All Meetups</h1>
-    <MeetupList meetups={dummyData} />
-  </section>
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadedMeetups, setLoadedMeetups] = useState([]);
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetch(
+      'https://react-meetup-app-f4389-default-rtdb.firebaseio.com/meetups.json'
+    )
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        const meetups = [];
+
+        for (const key in data) {
+          const meetup = {
+            id: key,
+            ...data[key]
+          };
+
+          meetups.push(meetup);
+        }
+
+        setIsLoading(false);
+        setLoadedMeetups(meetups);
+      });
+  }, []);
+
+  if (isLoading) {
+    return (
+      <section>
+        <p>Loading...</p>
+      </section>
+    );
+  }
+
+  return (
+    <section>
+      <h1>All Meetups</h1>
+      <MeetupList meetups={loadedMeetups} />
+    </section>
   );
 }
 
